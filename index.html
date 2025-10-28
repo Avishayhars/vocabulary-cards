@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Vocabulary Learning Cards</title>
+    <title>כרטיסיות אוצר מילים באנגלית</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,6 +13,12 @@
         
         body {
             font-family: 'Poppins', sans-serif;
+        }
+        
+        .word-wrap {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
     </style>
 </head>
@@ -95,41 +101,41 @@
             ];
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-8">
-                    <div className="max-w-7xl mx-auto">
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 sm:p-8">
+                    <div className="max-w-7xl mx-auto px-[5%] sm:px-0">
                         <div className="text-center mb-8">
-                            <h1 className="text-5xl font-bold text-purple-700 mb-2" dir="rtl">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-700 mb-2" dir="rtl">
                                 כרטיסיות אוצר מילים באנגלית 📚
                             </h1>
-                            <p className="text-xl text-gray-700 mb-4" dir="rtl">
+                            <p className="text-lg sm:text-xl text-gray-700 mb-4" dir="rtl">
                                 לחץ על כל כרטיסייה כדי ללמוד מילים חדשות!
                             </p>
                             <button
                                 onClick={resetAll}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 mx-auto"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 mx-auto text-sm sm:text-base"
                             >
                                 <RotateCcw />
                                 אפס את כל הכרטיסים
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                             {vocabularyWords.map((item, index) => (
                                 <div
                                     key={index}
                                     onClick={() => handleCardClick(index)}
-                                    className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-8 flex items-center justify-center min-h-[200px] relative overflow-hidden`}
+                                    className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-4 sm:p-6 md:p-8 flex items-center justify-center min-h-[180px] sm:min-h-[200px] relative overflow-hidden`}
                                 >
-                                    <div className="absolute top-3 right-3 bg-white bg-opacity-70 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-gray-700">
+                                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white bg-opacity-70 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-gray-700">
                                         {index + 1}
                                     </div>
                                     
                                     {cardStates[index] === 'icon' && (
                                         <div className="text-center">
-                                            <div className="text-8xl mb-2">
+                                            <div className="text-6xl sm:text-7xl md:text-8xl mb-2">
                                                 {item.icon}
                                             </div>
-                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
                                                 לחץ לראות את המילה
                                             </div>
                                         </div>
@@ -137,10 +143,10 @@
 
                                     {cardStates[index] === 'english' && (
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold text-gray-800 mb-2">
+                                            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 px-2 break-words word-wrap">
                                                 {item.word}
                                             </div>
-                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
                                                 לחץ לתרגום עברי
                                             </div>
                                         </div>
@@ -148,40 +154,16 @@
 
                                     {cardStates[index] === 'hebrew' && (
                                         <div className="text-center">
-                                            <div className="text-5xl font-bold text-gray-800 mb-2" dir="rtl">
+                                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-2 px-2 break-words" dir="rtl">
                                                 {item.hebrew}
                                             </div>
-                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
                                                 לחץ להתחלה מחדש
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             ))}
-                        </div>
-
-                        <div className="mt-8 text-center bg-white rounded-2xl p-6 shadow-lg">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2" dir="rtl">איך משתמשים:</h2>
-                            <div className="flex flex-wrap justify-center gap-8 text-right">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-lg" dir="rtl">לוחצים שוב לעברית</span>
-                                    <div className="bg-green-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
-                                        3️⃣
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-lg" dir="rtl">לוחצים למילה באנגלית</span>
-                                    <div className="bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
-                                        2️⃣
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-lg" dir="rtl">רואים את התמונה</span>
-                                    <div className="bg-purple-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
-                                        1️⃣
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
