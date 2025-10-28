@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Vocabulary Learning Cards</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const RotateCcw = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+        );
+
+        const VocabularyApp = () => {
+            const vocabularyWords = [
+                { word: 'house', hebrew: 'בית', icon: '🏠' },
+                { word: 'new', hebrew: 'חדש', icon: '✨' },
+                { word: 'friend', hebrew: 'חבר/ה', icon: '👥' },
+                { word: 'grade', hebrew: 'כיתה', icon: '📊' },
+                { word: 'town', hebrew: 'עיר', icon: '🏘️' },
+                { word: 'school', hebrew: 'בית ספר', icon: '🏫' },
+                { word: 'teacher', hebrew: 'מורה', icon: '👨‍🏫' },
+                { word: 'talk', hebrew: 'לדבר', icon: '💬' },
+                { word: 'family', hebrew: 'משפחה', icon: '👨‍👩‍👧‍👦' },
+                { word: 'bird', hebrew: 'ציפור', icon: '🐦' },
+                { word: 'fly', hebrew: 'לעוף', icon: '🦋' },
+                { word: 'English', hebrew: 'אנגלית', icon: '🇬🇧' },
+                { word: 'lesson', hebrew: 'שיעור', icon: '📖' },
+                { word: 'want', hebrew: 'רוצה', icon: '🙋' },
+                { word: 'nice', hebrew: 'נחמד', icon: '😊' },
+                { word: 'eraser', hebrew: 'מחק', icon: '🧽' },
+                { word: 'book', hebrew: 'ספר', icon: '📚' },
+                { word: 'need', hebrew: 'צריך', icon: '🤔' },
+                { word: 'board', hebrew: 'לוח', icon: '⬜' },
+                { word: 'thanks', hebrew: 'תודה', icon: '🙏' },
+                { word: 'chair', hebrew: 'כיסא', icon: '🪑' },
+                { word: 'lunch', hebrew: 'ארוחת צהריים', icon: '🍱' },
+                { word: 'homework', hebrew: 'שיעורי בית', icon: '📝' },
+                { word: 'notebook', hebrew: 'מחברת', icon: '📓' },
+                { word: 'paper', hebrew: 'נייר', icon: '📄' },
+                { word: 'pencil', hebrew: 'עפרון', icon: '✏️' },
+                { word: 'brother', hebrew: 'אח', icon: '👦' },
+                { word: 'sister', hebrew: 'אחות', icon: '👧' },
+            ];
+
+            const [cardStates, setCardStates] = useState(
+                vocabularyWords.map(() => 'icon')
+            );
+
+            const handleCardClick = (index) => {
+                setCardStates(prev => {
+                    const newStates = [...prev];
+                    if (newStates[index] === 'icon') {
+                        newStates[index] = 'english';
+                    } else if (newStates[index] === 'english') {
+                        newStates[index] = 'hebrew';
+                    } else {
+                        newStates[index] = 'icon';
+                    }
+                    return newStates;
+                });
+            };
+
+            const resetAll = () => {
+                setCardStates(vocabularyWords.map(() => 'icon'));
+            };
+
+            const colors = [
+                'bg-purple-300',
+                'bg-blue-300',
+                'bg-green-300',
+                'bg-yellow-300',
+                'bg-pink-300',
+                'bg-orange-300',
+                'bg-red-300',
+                'bg-indigo-300',
+            ];
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-8">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-8">
+                            <h1 className="text-5xl font-bold text-purple-700 mb-2" dir="rtl">
+                                כרטיסיות אוצר מילים באנגלית 📚
+                            </h1>
+                            <p className="text-xl text-gray-700 mb-4" dir="rtl">
+                                לחץ על כל כרטיסייה כדי ללמוד מילים חדשות!
+                            </p>
+                            <button
+                                onClick={resetAll}
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 mx-auto"
+                            >
+                                <RotateCcw />
+                                אפס את כל הכרטיסים
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {vocabularyWords.map((item, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => handleCardClick(index)}
+                                    className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-8 flex items-center justify-center min-h-[200px] relative overflow-hidden`}
+                                >
+                                    <div className="absolute top-3 right-3 bg-white bg-opacity-70 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-gray-700">
+                                        {index + 1}
+                                    </div>
+                                    
+                                    {cardStates[index] === 'icon' && (
+                                        <div className="text-center">
+                                            <div className="text-8xl mb-2">
+                                                {item.icon}
+                                            </div>
+                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                                לחץ לראות את המילה
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {cardStates[index] === 'english' && (
+                                        <div className="text-center">
+                                            <div className="text-4xl font-bold text-gray-800 mb-2">
+                                                {item.word}
+                                            </div>
+                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                                לחץ לתרגום עברי
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {cardStates[index] === 'hebrew' && (
+                                        <div className="text-center">
+                                            <div className="text-5xl font-bold text-gray-800 mb-2" dir="rtl">
+                                                {item.hebrew}
+                                            </div>
+                                            <div className="text-sm text-gray-600 font-medium" dir="rtl">
+                                                לחץ להתחלה מחדש
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-8 text-center bg-white rounded-2xl p-6 shadow-lg">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-2" dir="rtl">איך משתמשים:</h2>
+                            <div className="flex flex-wrap justify-center gap-8 text-right">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-lg" dir="rtl">לוחצים שוב לעברית</span>
+                                    <div className="bg-green-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
+                                        3️⃣
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-lg" dir="rtl">לוחצים למילה באנגלית</span>
+                                    <div className="bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
+                                        2️⃣
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-lg" dir="rtl">רואים את התמונה</span>
+                                    <div className="bg-purple-200 rounded-full w-10 h-10 flex items-center justify-center text-2xl">
+                                        1️⃣
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<VocabularyApp />);
+    </script>
+</body>
+</html>
