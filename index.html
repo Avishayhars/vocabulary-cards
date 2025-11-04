@@ -20,35 +20,6 @@
             overflow-wrap: break-word;
             hyphens: auto;
         }
-        
-        .toggle-switch {
-            position: relative;
-            width: 40px;
-            height: 22px;
-            background: #ccc;
-            border-radius: 50px;
-            transition: background 0.3s;
-            cursor: pointer;
-        }
-        
-        .toggle-switch.active {
-            background: #ef4444;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
-        
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(18px);
-        }
     </style>
 </head>
 <body>
@@ -67,20 +38,6 @@
         const Star = ({ filled }) => (
             <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? "#fbbf24" : "none"} stroke={filled ? "#fbbf24" : "#9ca3af"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-        );
-
-        const EyeOff = () => (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-            </svg>
-        );
-
-        const Eye = () => (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
             </svg>
         );
 
@@ -186,38 +143,50 @@
                 { word: 'gray', hebrew: 'אפור', icon: '⚫' },
             ];
 
+            const sentences = [
+                { english: 'How old are you?', hebrew: 'בן כמה אתה?' },
+                { english: 'I go to Brener School', hebrew: 'אני הולך לבית ספר ברנר' },
+                { english: "I'm nine years old", hebrew: 'אני בן תשע' },
+                { english: "Let's go", hebrew: 'בוא נלך' },
+                { english: 'Do you have...?', hebrew: '?...האם יש לך' },
+                { english: "I don't have...", hebrew: '...אין לי' },
+                { english: 'Where do you live?', hebrew: 'איפה אתה גר?' },
+                { english: 'I live in Givatayim', hebrew: 'אני גר בגבעתיים' },
+            ];
+
             const [cardStates, setCardStates] = useState(
                 vocabularyWords.map(() => 'icon')
             );
 
-            // Load hidden and favorite cards from localStorage
-            const [hiddenCards, setHiddenCards] = useState(() => {
-                const saved = localStorage.getItem('hiddenCards');
-                return saved ? JSON.parse(saved) : [];
-            });
+            const [sentenceStates, setSentenceStates] = useState(
+                sentences.map(() => 'english')
+            );
 
             const [favoriteCards, setFavoriteCards] = useState(() => {
                 const saved = localStorage.getItem('favoriteCards');
                 return saved ? JSON.parse(saved) : [];
             });
 
-            const [filterMode, setFilterMode] = useState('all'); // 'all', 'favorites', 'visible'
+            const [favoriteSentences, setFavoriteSentences] = useState(() => {
+                const saved = localStorage.getItem('favoriteSentences');
+                return saved ? JSON.parse(saved) : [];
+            });
 
-            // Save to localStorage whenever hidden or favorite cards change
-            useEffect(() => {
-                localStorage.setItem('hiddenCards', JSON.stringify(hiddenCards));
-            }, [hiddenCards]);
+            const [filterMode, setFilterMode] = useState('all');
 
             useEffect(() => {
                 localStorage.setItem('favoriteCards', JSON.stringify(favoriteCards));
             }, [favoriteCards]);
 
-            // Text-to-Speech function
-            const speakWord = (word) => {
+            useEffect(() => {
+                localStorage.setItem('favoriteSentences', JSON.stringify(favoriteSentences));
+            }, [favoriteSentences]);
+
+            const speakText = (text) => {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
                     
-                    const utterance = new SpeechSynthesisUtterance(word);
+                    const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'en-US';
                     utterance.rate = 0.8;
                     
@@ -259,7 +228,7 @@
                     const newStates = [...prev];
                     if (newStates[index] === 'icon') {
                         newStates[index] = 'english';
-                        setTimeout(() => speakWord(vocabularyWords[index].word), 100);
+                        setTimeout(() => speakText(vocabularyWords[index].word), 100);
                     } else if (newStates[index] === 'english') {
                         newStates[index] = 'hebrew';
                     } else {
@@ -269,14 +238,16 @@
                 });
             };
 
-            const toggleHidden = (index, e) => {
-                e.stopPropagation();
-                setHiddenCards(prev => {
-                    if (prev.includes(index)) {
-                        return prev.filter(i => i !== index);
+            const handleSentenceClick = (index) => {
+                setSentenceStates(prev => {
+                    const newStates = [...prev];
+                    if (newStates[index] === 'english') {
+                        newStates[index] = 'hebrew';
+                        setTimeout(() => speakText(sentences[index].english), 100);
                     } else {
-                        return [...prev, index];
+                        newStates[index] = 'english';
                     }
+                    return newStates;
                 });
             };
 
@@ -291,19 +262,26 @@
                 });
             };
 
-            const resetAll = () => {
-                setCardStates(vocabularyWords.map(() => 'icon'));
+            const toggleFavoriteSentence = (index, e) => {
+                e.stopPropagation();
+                setFavoriteSentences(prev => {
+                    if (prev.includes(index)) {
+                        return prev.filter(i => i !== index);
+                    } else {
+                        return [...prev, index];
+                    }
+                });
             };
 
-            const clearAllHidden = () => {
-                if (window.confirm('האם אתה בטוח שברצונך להציג מחדש את כל הכרטיסים המוסתרים?')) {
-                    setHiddenCards([]);
-                }
+            const resetAll = () => {
+                setCardStates(vocabularyWords.map(() => 'icon'));
+                setSentenceStates(sentences.map(() => 'english'));
             };
 
             const clearAllFavorites = () => {
                 if (window.confirm('האם אתה בטוח שברצונך למחוק את כל המועדפים?')) {
                     setFavoriteCards([]);
+                    setFavoriteSentences([]);
                 }
             };
 
@@ -313,8 +291,14 @@
                     if (filterMode === 'favorites') {
                         return favoriteCards.includes(index);
                     }
-                    if (filterMode === 'visible') {
-                        return !hiddenCards.includes(index);
+                    return true;
+                });
+
+            const filteredSentences = sentences
+                .map((sentence, index) => ({ ...sentence, originalIndex: index }))
+                .filter((_, index) => {
+                    if (filterMode === 'favorites') {
+                        return favoriteSentences.includes(index);
                     }
                     return true;
                 });
@@ -330,12 +314,15 @@
                 'bg-indigo-300',
             ];
 
+            const totalFavorites = favoriteCards.length + favoriteSentences.length;
+            const totalItems = vocabularyWords.length + sentences.length;
+
             return (
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 sm:p-8">
-                    <div className="max-w-7xl mx-auto px-[3%] sm:px-0">
+                    <div className="max-w-7xl mx-auto px-[1%] sm:px-0">
                         <div className="text-center mb-8">
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-700 mb-2" dir="rtl">
-                                כרטיסיות אוצר מילים באנגלית 📚
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-2" dir="rtl">
+                                📚 כרטיסיות אוצר מילים באנגלית
                             </h1>
                             <p className="text-lg sm:text-xl text-gray-700 mb-4" dir="rtl">
                                 לחץ על כל כרטיסייה כדי ללמוד מילים חדשות!
@@ -345,21 +332,15 @@
                             <div className="flex flex-wrap justify-center gap-3 mb-4" dir="rtl">
                                 <button
                                     onClick={() => setFilterMode('all')}
-                                    className={`${filterMode === 'all' ? 'bg-purple-600 text-white' : 'bg-white text-purple-600'} font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 text-sm sm:text-base border-2 border-purple-600`}
+                                    className={`${filterMode === 'all' ? 'bg-black text-white' : 'bg-white text-black'} font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 text-sm sm:text-base border-2 border-black`}
                                 >
-                                    הכל ({vocabularyWords.length})
+                                    הכל ({totalItems})
                                 </button>
                                 <button
                                     onClick={() => setFilterMode('favorites')}
                                     className={`${filterMode === 'favorites' ? 'bg-yellow-500 text-white' : 'bg-white text-yellow-600'} font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 text-sm sm:text-base border-2 border-yellow-500 flex items-center gap-2`}
                                 >
-                                    ⭐ מועדפים ({favoriteCards.length})
-                                </button>
-                                <button
-                                    onClick={() => setFilterMode('visible')}
-                                    className={`${filterMode === 'visible' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'} font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 text-sm sm:text-base border-2 border-blue-600 flex items-center gap-2`}
-                                >
-                                    👁️ גלויים ({vocabularyWords.length - hiddenCards.length})
+                                    ⭐ מועדפים ({totalFavorites})
                                 </button>
                             </div>
 
@@ -367,20 +348,12 @@
                             <div className="flex flex-wrap justify-center gap-3" dir="rtl">
                                 <button
                                     onClick={resetAll}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
+                                    className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
                                 >
                                     <RotateCcw />
                                     אפס הפיכות
                                 </button>
-                                {hiddenCards.length > 0 && (
-                                    <button
-                                        onClick={clearAllHidden}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
-                                    >
-                                        הצג הכל
-                                    </button>
-                                )}
-                                {favoriteCards.length > 0 && (
+                                {totalFavorites > 0 && (
                                     <button
                                         onClick={clearAllFavorites}
                                         className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
@@ -391,81 +364,140 @@
                             </div>
                         </div>
 
-                        {filteredWords.length === 0 ? (
-                            <div className="text-center text-2xl text-gray-600 py-20" dir="rtl">
-                                {filterMode === 'favorites' ? 'אין מילים במועדפים 😊' : 'אין כרטיסים להצגה'}
+                        {/* Sentences Section */}
+                        {(filterMode === 'all' || (filterMode === 'favorites' && filteredSentences.length > 0)) && (
+                            <div className="mb-12">
+                                <h2 className="text-2xl sm:text-3xl font-bold text-black mb-6 text-center" dir="rtl">
+                                    משפטים 💬
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                    {filteredSentences.map((item) => {
+                                        const index = item.originalIndex;
+                                        const isFavorite = favoriteSentences.includes(index);
+                                        
+                                        return (
+                                            <div
+                                                key={index}
+                                                onClick={() => handleSentenceClick(index)}
+                                                className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-6 sm:p-8 flex items-center justify-center min-h-[120px] relative overflow-hidden`}
+                                            >
+                                                {/* Favorite Star */}
+                                                <div
+                                                    onClick={(e) => toggleFavoriteSentence(index, e)}
+                                                    className="absolute top-2 left-2 sm:top-3 sm:left-3 cursor-pointer hover:scale-110 transition-transform z-10"
+                                                    title={isFavorite ? "הסר ממועדפים" : "הוסף למועדפים"}
+                                                >
+                                                    <Star filled={isFavorite} />
+                                                </div>
+                                                
+                                                {sentenceStates[index] === 'english' && (
+                                                    <div className="text-center w-full">
+                                                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 px-2 break-words word-wrap">
+                                                            {item.english}
+                                                        </div>
+                                                        <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
+                                                            לחץ לתרגום עברי
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {sentenceStates[index] === 'hebrew' && (
+                                                    <div className="text-center w-full">
+                                                        <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 px-2 break-words" dir="rtl">
+                                                            {item.hebrew}
+                                                        </div>
+                                                        <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
+                                                            לחץ להתחלה מחדש
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                                {filteredWords.map((item) => {
-                                    const index = item.originalIndex;
-                                    const isHidden = hiddenCards.includes(index);
-                                    const isFavorite = favoriteCards.includes(index);
-                                    
-                                    return (
-                                        <div
-                                            key={index}
-                                            onClick={() => handleCardClick(index)}
-                                            className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-4 sm:p-6 md:p-8 flex items-center justify-center min-h-[180px] sm:min-h-[200px] relative overflow-hidden ${isHidden ? 'opacity-50' : ''}`}
-                                        >
-                                            {/* Card Number */}
-                                            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white bg-opacity-70 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-gray-700">
-                                                {index + 1}
-                                            </div>
+                        )}
 
-                                            {/* Favorite Star */}
-                                            <div
-                                                onClick={(e) => toggleFavorite(index, e)}
-                                                className="absolute top-2 left-2 sm:top-3 sm:left-3 cursor-pointer hover:scale-110 transition-transform z-10"
-                                                title={isFavorite ? "הסר ממועדפים" : "הוסף למועדפים"}
-                                            >
-                                                <Star filled={isFavorite} />
-                                            </div>
-
-                                            {/* Hide Toggle */}
-                                            <div
-                                                onClick={(e) => toggleHidden(index, e)}
-                                                className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 cursor-pointer hover:scale-110 transition-transform z-10 bg-white bg-opacity-80 p-2 rounded-full"
-                                                title={isHidden ? "הצג כרטיס" : "הסתר כרטיס"}
-                                            >
-                                                {isHidden ? <EyeOff /> : <Eye />}
-                                            </div>
+                        {/* Words Section */}
+                        {(filterMode === 'all' || (filterMode === 'favorites' && filteredWords.length > 0)) && (
+                            <div>
+                                <h2 className="text-2xl sm:text-3xl font-bold text-black mb-6 text-center" dir="rtl">
+                                    מילים 📖
+                                </h2>
+                                {filteredWords.length === 0 ? (
+                                    <div className="text-center text-2xl text-gray-600 py-20" dir="rtl">
+                                        אין מילים במועדפים 😊
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                                        {filteredWords.map((item) => {
+                                            const index = item.originalIndex;
+                                            const isFavorite = favoriteCards.includes(index);
                                             
-                                            {cardStates[index] === 'icon' && (
-                                                <div className="text-center">
-                                                    <div className="text-6xl sm:text-7xl md:text-8xl mb-2">
-                                                        {item.icon}
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    onClick={() => handleCardClick(index)}
+                                                    className={`${colors[index % colors.length]} rounded-3xl shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-3xl p-4 sm:p-6 md:p-8 flex items-center justify-center min-h-[180px] sm:min-h-[200px] relative overflow-hidden`}
+                                                >
+                                                    {/* Card Number */}
+                                                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white bg-opacity-70 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold text-gray-700">
+                                                        {index + 1}
                                                     </div>
-                                                    <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
-                                                        לחץ לראות את המילה
-                                                    </div>
-                                                </div>
-                                            )}
 
-                                            {cardStates[index] === 'english' && (
-                                                <div className="text-center">
-                                                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 px-2 break-words word-wrap">
-                                                        {item.word}
+                                                    {/* Favorite Star */}
+                                                    <div
+                                                        onClick={(e) => toggleFavorite(index, e)}
+                                                        className="absolute top-2 left-2 sm:top-3 sm:left-3 cursor-pointer hover:scale-110 transition-transform z-10"
+                                                        title={isFavorite ? "הסר ממועדפים" : "הוסף למועדפים"}
+                                                    >
+                                                        <Star filled={isFavorite} />
                                                     </div>
-                                                    <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
-                                                        לחץ לתרגום עברי
-                                                    </div>
-                                                </div>
-                                            )}
+                                                    
+                                                    {cardStates[index] === 'icon' && (
+                                                        <div className="text-center">
+                                                            <div className="text-6xl sm:text-7xl md:text-8xl mb-2">
+                                                                {item.icon}
+                                                            </div>
+                                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
+                                                                לחץ לראות את המילה
+                                                            </div>
+                                                        </div>
+                                                    )}
 
-                                            {cardStates[index] === 'hebrew' && (
-                                                <div className="text-center">
-                                                    <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-2 px-2 break-words" dir="rtl">
-                                                        {item.hebrew}
-                                                    </div>
-                                                    <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
-                                                        לחץ להתחלה מחדש
-                                                    </div>
+                                                    {cardStates[index] === 'english' && (
+                                                        <div className="text-center">
+                                                            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 px-2 break-words word-wrap">
+                                                                {item.word}
+                                                            </div>
+                                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
+                                                                לחץ לתרגום עברי
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {cardStates[index] === 'hebrew' && (
+                                                        <div className="text-center">
+                                                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-2 px-2 break-words" dir="rtl">
+                                                                {item.hebrew}
+                                                            </div>
+                                                            <div className="text-xs sm:text-sm text-gray-600 font-medium" dir="rtl">
+                                                                לחץ להתחלה מחדש
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {filterMode === 'favorites' && totalFavorites === 0 && (
+                            <div className="text-center text-2xl text-gray-600 py-20" dir="rtl">
+                                אין פריטים במועדפים 😊<br />
+                                לחץ על ⭐ כדי להוסיף מילים ומשפטים למועדפים
                             </div>
                         )}
                     </div>
